@@ -1,54 +1,61 @@
 "use client";
 
-import { Controlled as ControlledEditor } from "react-codemirror2";
-import "codemirror/lib/codemirror.css";
-import "codemirror/theme/material.css";
-import "codemirror/theme/ayu-dark.css";
-import "codemirror/mode/xml/xml";
-import "codemirror/mode/javascript/javascript";
-import "codemirror/mode/css/css";
+import dynamic from "next/dynamic";
+import { html } from "@codemirror/lang-html";
+import { css as cssLang } from "@codemirror/lang-css";
+import { javascript } from "@codemirror/lang-javascript";
+import { useCallback } from "react";
 import Image from "next/image";
+
+const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
+  ssr: false,
+});
 
 interface EditorProps {
   displayName: string;
   displayImage?: string;
   language: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange: (v: string) => void;
 }
+
+const languageExt = {
+  xml: html(),
+  css: cssLang(),
+  javascript: javascript(),
+} as const;
 
 export function Editor({
   displayName,
+  displayImage,
   language,
   value,
   onChange,
-  displayImage,
 }: EditorProps) {
+  const handleChange = useCallback((val: string) => onChange(val), [onChange]);
+
   return (
     <div className="flex-1 flex flex-col">
-      <div className="bg-black text-neutral-700 hover:text-neutral-100 hover:transition-all duration-200 px-2 py-1 text-sm font-semibold rounded-t-md">
+      <div className="bg-black text-neutral-700 px-2 py-1 text-sm font-semibold rounded-t-md">
         {displayImage && (
           <Image
+            src={displayImage}
+            alt=""
             width={16}
             height={16}
-            src={displayImage}
-            alt="displayImage"
-            className="w-6 h-6 inline-block mr-1"
-          ></Image>
+            className="inline-block mr-1"
+          />
         )}
         {displayName}
       </div>
 
-      <ControlledEditor
+      <CodeMirror
         value={value}
-        onBeforeChange={(_editor, _data, val) => onChange(val)}
+        onChange={handleChange}
+        extensions={[languageExt[language as keyof typeof languageExt]]}
         className="flex-1 rounded-md"
-        options={{
-          mode: language,
-          theme: "ayu-dark",
-          lineNumbers: true,
-          lineWrapping: true,
-        }}
+        theme="dark"
+        basicSetup={{ lineNumbers: true }}
       />
     </div>
   );
