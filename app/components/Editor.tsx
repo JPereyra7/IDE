@@ -17,6 +17,7 @@ interface EditorProps {
   language: string;
   value: string;
   onChange: (v: string) => void;
+  minHeight?: string | number
 }
 
 const languageExt = {
@@ -36,7 +37,7 @@ export function Editor({
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="bg-black text-neutral-700 px-2 py-1 text-sm font-semibold rounded-t-md">
+      <div className="bg-black text-neutral-700 px-2 py-1 text-sm font-semibold rounded-t-md hover:text-neutral-100 transition-all duration-200">
         {displayImage && (
           <Image
             src={displayImage}
@@ -56,6 +57,7 @@ export function Editor({
         className="flex-1 rounded-md"
         theme="dark"
         basicSetup={{ lineNumbers: true }}
+        minHeight="250px"
       />
     </div>
   );
