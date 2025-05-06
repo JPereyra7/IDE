@@ -28,7 +28,7 @@ export function FileSidebar({ root, setRoot, onSelect }: Props) {
         <div key={n.id}>
           <div
             style={{ paddingLeft: depth * 14 }}
-            className="flex items-center gap-1 cursor-pointer select-none"
+            className="flex items-center gap-1 cursor-pointer select-none hover:text-gray-600 transition-all duration-200"
             onClick={() => toggleDir(n.id)}
             onDoubleClick={() => setCreateTarget(n)}
           >

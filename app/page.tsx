@@ -29,8 +29,8 @@ export default function Home() {
 
           <Link
             href="/playground?type=react"
-            className="w-56 h-40 bg-zinc-800 rounded-xl border border-zinc-700 hover:border-sky-500
-                       flex flex-col items-center justify-center gap-3 transition">
+            className="w-56 h-40 bg-zinc-800 hover:bg-zinc-900 rounded-xl border border-zinc-700 hover:border-sky-300
+                       flex flex-col items-center justify-center gap-3 hover:shadow-[0px_0px_49px_10px_rgba(46,213,255,1)] transition-all duration-500">
             <img src="/react.png" alt="" className="w-12 h-12" />
             <span className="font-medium">React.ts</span>
           </Link>
