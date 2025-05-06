@@ -10,7 +10,8 @@ import {
   ContextMenuTrigger,
   ContextMenuSeparator,
 } from '@/components/ui/context-menu';
-
+import { Folder, FolderOpen } from 'lucide-react';        /* ⬅️  Lucide */
+                                                     
 const ICON_REACT =
   'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg';
 const ICON_CSS =
@@ -31,19 +32,19 @@ export function FileSidebar({ root, setRoot, onSelect }: Props) {
   const [editingName, setEditingName] = useState('');
   const editInputRef = useRef<HTMLInputElement>(null);
 
-  /* focus input när man börjar rename */
   useEffect(() => {
     if (editingId) editInputRef.current?.focus();
   }, [editingId]);
 
-  /* ────────────────────────── render tree ────────────────────────── */
+  /* ─ render tree ─ */
   const renderNode = (n: FileNode, depth = 0): JSX.Element => {
     const padding = { paddingLeft: depth * 14 };
 
-    /* editing state */
+    /* rename‑input */
     if (n.id === editingId) {
       return (
-        <div key={n.id} style={padding} className="flex items-center">
+        <div key={n.id} style={padding} className="flex items-center gap-1">
+          <Folder className="h-4 w-4 text-zinc-400" strokeWidth={1.25} />
           <input
             ref={editInputRef}
             value={editingName}
@@ -53,7 +54,7 @@ export function FileSidebar({ root, setRoot, onSelect }: Props) {
               if (e.key === 'Escape') cancelRename();
             }}
             onBlur={() => commitRename(n.id)}
-            className="w-full bg-zinc-800 px-1 py-0.5 text-sm rounded outline-none"
+            className="flex-1 bg-zinc-800 px-1 py-0.5 text-sm rounded outline-none"
           />
         </div>
       );
@@ -61,17 +62,19 @@ export function FileSidebar({ root, setRoot, onSelect }: Props) {
 
     /* directory */
     if (n.type === 'dir') {
+      const Icon = n.isOpen ? FolderOpen : Folder;
       return (
         <div key={n.id}>
           <ContextMenu>
             <ContextMenuTrigger asChild>
               <div
                 style={padding}
-                className="flex items-center gap-1 cursor-pointer select-none hover:text-gray-400"
+                className="flex items-center gap-2 cursor-pointer select-none hover:text-gray-400"
                 onClick={() => toggleDir(n.id)}
                 onDoubleClick={() => setCreateTarget(n)}
               >
-                {n.isOpen ? '📂' : '📁'} {n.name}
+                <Icon className="h-4 w-4" strokeWidth={1.5} color="#415d68" />
+                {n.name}
               </div>
             </ContextMenuTrigger>
 
@@ -102,17 +105,12 @@ export function FileSidebar({ root, setRoot, onSelect }: Props) {
     );
   };
 
-  /* ────────────────────────── context menu ───────────────────────── */
+  /* dark context menu */
   const DarkMenu = ({
     onRename,
     onDelete,
-  }: {
-    onRename: () => void;
-    onDelete: () => void;
-  }) => (
-    <ContextMenuContent
-      className="w-36 rounded-md border border-zinc-700 bg-zinc-800 p-1 text-zinc-100 shadow-lg"
-    >
+  }: { onRename: () => void; onDelete: () => void }) => (
+    <ContextMenuContent className="w-36 rounded-md border border-zinc-700 bg-zinc-800 p-1 text-zinc-100 shadow-lg">
       <ContextMenuItem onClick={onRename} className="px-2 py-1.5 text-sm hover:bg-zinc-700 rounded">
         Rename
       </ContextMenuItem>
@@ -126,85 +124,56 @@ export function FileSidebar({ root, setRoot, onSelect }: Props) {
     </ContextMenuContent>
   );
 
-  /* ────────────────────────── actions ────────────────────────────── */
+  /* actions */
   const startRename = (node: FileNode) => {
     setEditingId(node.id);
     setEditingName(node.name);
   };
-
-  const cancelRename = () => {
-    setEditingId(null);
-    setEditingName('');
-  };
-
+  const cancelRename = () => { setEditingId(null); setEditingName(''); };
   const commitRename = (id: string) => {
     if (!editingId) return;
     const newName = editingName.trim();
-    if (newName && newName !== editingName) {
-      setRoot((prev) => walkDir(prev, id, (d) => ({ ...d, name: newName })));
-    }
+    if (newName) setRoot((p) => walkDir(p, id, (d) => ({ ...d, name: newName })));
     cancelRename();
   };
 
   const toggleDir = (id: string) =>
-    setRoot((prev) => walkDir(prev, id, (d) => ({ ...d, isOpen: !d.isOpen })));
+    setRoot((p) => walkDir(p, id, (d) => ({ ...d, isOpen: !d.isOpen })));
+  const deleteNode = (id: string) => setRoot((p) => removeNode(p, id));
 
-  const deleteNode = (id: string) => setRoot((prev) => removeNode(prev, id));
-
+  /* create file/folder ... (oförändrat) */
   const getLang = (name: string): FileLeaf['language'] =>
     name.endsWith('.css') ? 'css' : 'typescript';
-
-  const addChild = (child: FileNode) =>
-    setRoot((prev) =>
-      walkDir(prev, createTarget.id, (d) => ({ ...d, children: [...d.children, child] }))
+  const addChild = (c: FileNode) =>
+    setRoot((p) =>
+      walkDir(p, createTarget.id, (d) => ({ ...d, children: [...d.children, c] }))
     );
-
   const handleCreate = () => {
     if (!filename.trim()) return;
     if (showForm === 'file') {
-      addChild({
-        id: nanoid(),
-        type: 'file',
-        name: filename,
-        language: getLang(filename),
-        content: '',
-      } as FileLeaf);
+      addChild({ id: nanoid(), type: 'file', name: filename, language: getLang(filename), content: '' });
     } else {
-      addChild({
-        id: nanoid(),
-        type: 'dir',
-        name: filename,
-        isOpen: true,
-        children: [],
-      } as DirNode);
+      addChild({ id: nanoid(), type: 'dir', name: filename, isOpen: true, children: [] });
     }
-    setFilename('');
-    setShowForm(null);
+    setFilename(''); setShowForm(null);
   };
 
-  /* ────────────────────────── UI shell ───────────────────────────── */
+  /* UI shell */
   return (
     <aside className="w-64 bg-zinc-900 border-r border-zinc-800 text-sm flex flex-col">
-      {/* toolbar */}
       <div className="px-2 py-1 border-b border-zinc-800 flex items-center gap-2">
-        <button
-          className="px-2 py-0.5 bg-zinc-800 rounded hover:bg-zinc-700"
-          onClick={() => { setShowForm('file'); setFilename(''); }}
-        >
+        <button className="px-2 py-0.5 bg-zinc-800 rounded hover:bg-zinc-700"
+          onClick={() => { setShowForm('file'); setFilename(''); }}>
           + File
         </button>
-        <button
-          className="px-2 py-0.5 bg-zinc-800 rounded hover:bg-zinc-700"
-          onClick={() => { setShowForm('folder'); setFilename(''); }}
-        >
+        <button className="px-2 py-0.5 bg-zinc-800 rounded hover:bg-zinc-700"
+          onClick={() => { setShowForm('folder'); setFilename(''); }}>
           + Folder
         </button>
       </div>
 
-      {/* file tree */}
       <div className="flex-1 overflow-y-auto p-2">{renderNode(root)}</div>
 
-      {/* create form */}
       {showForm && (
         <div className="border-t border-zinc-800 p-2 space-x-1">
           <input
@@ -214,29 +183,19 @@ export function FileSidebar({ root, setRoot, onSelect }: Props) {
             onChange={(e) => setFilename(e.target.value)}
             className="bg-zinc-800 px-2 py-0.5 w-40 rounded outline-none"
           />
-          <button onClick={handleCreate} className="px-2 py-0.5 bg-sky-600 rounded">
-            OK
-          </button>
-          <button onClick={() => setShowForm(null)} className="text-zinc-400">
-            ✕
-          </button>
+          <button onClick={handleCreate} className="px-2 py-0.5 bg-sky-600 rounded">OK</button>
+          <button onClick={() => setShowForm(null)} className="text-zinc-400">✕</button>
         </div>
       )}
     </aside>
   );
 }
 
-/* ────────────────────────── tree utils ────────────────────────────── */
+/* tree utils */
 function walkDir(node: DirNode, id: string, fn: (d: DirNode) => DirNode): DirNode {
   if (node.id === id) return fn(node);
   return { ...node, children: node.children.map((c) => (c.type === 'dir' ? walkDir(c, id, fn) : c)) };
 }
-
 function removeNode(node: DirNode, id: string): DirNode {
-  return {
-    ...node,
-    children: node.children
-      .filter((c) => c.id !== id)
-      .map((c) => (c.type === 'dir' ? removeNode(c, id) : c)),
-  };
+  return { ...node, children: node.children.filter((c) => c.id !== id).map((c) => (c.type === 'dir' ? removeNode(c, id) : c)) };
 }
