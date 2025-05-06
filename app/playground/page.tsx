@@ -11,7 +11,7 @@ import { Editor } from '../components/Editor';
 const initialTree: DirNode = {
   id: 'root',
   type: 'dir',
-  name: 'react-workspace',
+  name: 'src',
   isOpen: true,
   children: [
     {
@@ -102,47 +102,61 @@ export default function Playground() {
 
 /* ── bygger HTML‑dokumentet med React UMD + Babel classic runtime ────── */
 function buildReactDoc(root: DirNode) {
-  /* TSX utan "export default" */
-  const tsx = root.children
-    .filter((c): c is FileLeaf => c.type === 'file' && c.language === 'typescript')
-    .map((f) => f.content.replace(/export\s+default\s+/g, ''))
-    .join('\n');
-
-  /* alla CSS‑regler */
-  const css = root.children
-    .filter((c): c is FileLeaf => c.type === 'file' && c.language === 'css')
-    .map((f) => f.content)
-    .join('\n');
-
-  /* aliasera hooks så vi slipper React.useState */
-  const reactHelpers =
-    'const { useState, useEffect, useRef, useMemo, useCallback } = React;';
-
-  return `<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <style>${css}</style>
-
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  </head>
-
-  <body>
-    <div id="root"></div>
-
-    <script type="text/babel" data-presets="typescript,react">
-/* @jsx React.createElement */
-${reactHelpers}
-${tsx}
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(React.createElement(App));
-    <\/script>
-  </body>
-</html>`;
-}
+    /* ① sortera så App sist */
+    const files = root.children
+      .filter((c): c is FileLeaf => c.type === 'file' && c.language === 'typescript')
+      .sort((a) => (a.name === 'App.tsx' ? 1 : -1));
+  
+    /* ② transformera varje fil */
+    const tsx = files
+      .map(({ name, content }) => {
+        const base = name.replace(/\.[tj]sx?$/, '');        // Korv.tsx -> Korv
+        return (
+          `// ---- ${name} ----\n` +
+          content
+            /* ta bort import‑rader */
+            .replace(/import[^;]+;\n?/g, '')
+            /* ersätt "export default" med global var */
+            .replace(/export\s+default\s+function\s+(\w+)/, 'function $1')
+            .replace(/export\s+default\s+(\w+)/, `const ${base} = $1`)
+        );
+      })
+      .join('\n');
+  
+    /* ③ samla CSS */
+    const css = root.children
+      .filter((c): c is FileLeaf => c.type === 'file' && c.language === 'css')
+      .map((f) => f.content)
+      .join('\n');
+  
+    /* ④ alias för hooks */
+    const helpers =
+      'const { useState, useEffect, useRef, useMemo, useCallback } = React;';
+  
+    return `<!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="utf-8" />
+      <style>${css}</style>
+      <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+      <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+      <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    </head>
+    <body>
+      <div id="root"></div>
+  
+      <script type="text/babel" data-presets="typescript,react">
+  /* @jsx React.createElement */
+  ${helpers}
+  ${tsx}
+  
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(React.createElement(App));
+      <\/script>
+    </body>
+  </html>`;
+  }
+  
 
 /* ── immutabel fil‑update ──────────────────────────────────────────── */
 function updateFile(node: DirNode, id: string, txt: string): DirNode {

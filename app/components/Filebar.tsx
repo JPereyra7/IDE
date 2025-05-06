@@ -109,9 +109,9 @@ export function FileSidebar({ root, setRoot, onSelect }: Props) {
         >
           + Folder
         </button>
-        <span className="ml-auto text-zinc-500 truncate max-w-[7rem]">
+        {/* <span className="ml-auto text-zinc-500 truncate max-w-[7rem]">
           {createTarget.name}
-        </span>
+        </span> */}
       </div>
 
       {/* tree */}
