@@ -1,8 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { FlipWords } from './components/ui/flip-words';
 
 export default function Home() {
+  const words = ["Coder", "Engineer", "Developer", "Creator"];
+
   return (
     <main className="min-h-screen bg-zinc-900 text-zinc-100 flex flex-col">
       {/* top bar */}
@@ -14,7 +17,9 @@ export default function Home() {
       {/* greeting & choices */}
       <section className="flex-1 flex flex-col items-center justify-center gap-12">
         <div className="text-center space-y-2">
-          <h1 className="text-5xl font-bold">Hello, <span className="text-orange-400">Engineer!</span></h1>
+          <h1 className="text-5xl font-bold">Hello, 
+              <FlipWords words={words} className='text-orange-400'/>
+            </h1>
           <p className="text-lg text-zinc-400">Click below to get started</p>
         </div>
 
@@ -38,7 +43,19 @@ export default function Home() {
       </section>
 
       <footer className="text-center py-4 text-xs text-zinc-500">
-        Built with Next &middot; Tailwind CSS &middot; CodeMirror 6
+        Built with <span className='hover:text-slate-200 transition-all duration-300'>
+          Next 
+          </span> 
+          &middot; 
+          {' '}
+          <span className='hover:text-slate-200 transition-all duration-300'>
+          Tailwind CSS 
+          </span>
+          &middot; 
+          {' '}
+          <span className='hover:text-slate-200 transition-all duration-300'>
+          CodeMirror 6
+          </span>
       </footer>
     </main>
   );

@@ -54,6 +54,11 @@ export default function Playground() {
   const [tree, setTree]     = useState<DirNode>(initialTree);
   const [active, setActive] = useState<FileLeaf | null>(null);
   const [srcDoc, setSrcDoc] = useState(() => buildReactDoc(initialTree));
+  const link = "/";
+
+  const handleLinkHome = () => {
+    window.location.href = link;
+  }
 
   /* mjuk uppdatering av preview (300 ms debounce) */
   useEffect(() => {
@@ -68,7 +73,7 @@ export default function Playground() {
     <div className="h-screen flex flex-col bg-zinc-900 text-zinc-100">
         <div className='flex flex-row gap-1.5 mb-3.5 ml-2.5'>
               <div className="h-6 w-6 bg-gradient-to-br from-orange-400 to-cyan-600 rounded-sm" />
-              <span className="font-semibold tracking-wide">ReactPen Playground</span>
+              <span onClick={handleLinkHome} className="font-semibold tracking-wide cursor-pointer">ReactPen Playground</span>
         </div>
 
       <div className="flex flex-1 overflow-hidden">
