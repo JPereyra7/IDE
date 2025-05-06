@@ -1,63 +1,42 @@
-"use client";
+'use client';
 
-import dynamic from "next/dynamic";
-import { html } from "@codemirror/lang-html";
-import { css as cssLang } from "@codemirror/lang-css";
-import { javascript } from "@codemirror/lang-javascript";
-import { useCallback } from "react";
-import Image from "next/image";
+import dynamic from 'next/dynamic';
+import { javascript } from '@codemirror/lang-javascript';
+import { css as cssLang } from '@codemirror/lang-css';
+import { useCallback } from 'react';
 
-const CodeMirror = dynamic(() => import("@uiw/react-codemirror"), {
-  ssr: false,
-});
 
-interface EditorProps {
-  displayName: string;
-  displayImage?: string;
-  language: string;
-  value: string;
-  onChange: (v: string) => void;
-  minHeight?: string | number
-}
+const CodeMirror = dynamic(() => import('@uiw/react-codemirror'), { ssr: false });
 
-const languageExt = {
-  xml: html(),
+const extensions = {
+  typescript: javascript({ jsx: true, typescript: true }),
   css: cssLang(),
-  javascript: javascript(),
 } as const;
 
-export function Editor({
-  displayName,
-  displayImage,
-  language,
-  value,
-  onChange,
-}: EditorProps) {
-  const handleChange = useCallback((val: string) => onChange(val), [onChange]);
+interface Props {
+  language: keyof typeof extensions;
+  displayName: string;
+  value: string;
+  onChange: (v: string) => void;
+}
+
+export function Editor({ language, displayName, value, onChange }: Props) {
+  const handle = useCallback((val: string) => onChange(val), [onChange]);
 
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="bg-black text-neutral-700 px-2 py-1 text-sm font-semibold rounded-t-md hover:text-neutral-100 transition-all duration-200">
-        {displayImage && (
-          <Image
-            src={displayImage}
-            alt=""
-            width={16}
-            height={16}
-            className="inline-block mr-1"
-          />
-        )}
+    <div className="flex-1 flex flex-col min-h-0">
+      <div className="bg-black text-neutral-300 px-2 py-1 text-sm rounded-t-md">
         {displayName}
       </div>
 
       <CodeMirror
+        height="100%"
         value={value}
-        onChange={handleChange}
-        extensions={[languageExt[language as keyof typeof languageExt]]}
-        className="flex-1 rounded-md"
+        onChange={handle}
+        extensions={[extensions[language]]}
         theme="dark"
+        className="flex-1 rounded-b-md"
         basicSetup={{ lineNumbers: true }}
-        minHeight="250px"
       />
     </div>
   );

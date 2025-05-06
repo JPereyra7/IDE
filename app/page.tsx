@@ -1,66 +1,46 @@
-"use client";
+/* app/page.tsx ------------------------------------------------------------*/
+'use client';
 
-import { useState } from "react";
-import { Editor } from "./components/Editor";
+import Link from 'next/link';
 
 export default function Home() {
-  const [html, setHtml] = useState("");
-  const [css, setCss] = useState("");
-  const [js, setJs] = useState("");
-
-  const srcDoc = `
-    <html>
-      <head>
-        <style>
-          html,body{height:100%;margin:0}
-          body{
-            font-family:system-ui,sans-serif;
-            color:#fff;
-            margin: 20px;
-          }
-        </style>
-        <style>${css}</style>
-      </head>
-      <body>
-        ${html}
-        <script>${js}<\/script>
-      </body>
-    </html>
-  `;
   return (
-    <div className="h-screen flex flex-col">
-      <div className="top-pane flex gap-1 p-4">
-        <Editor
-          language="xml"
-          displayName="index.html"
-          value={html}
-          onChange={setHtml}
-          displayImage="https://img.icons8.com/?size=100&id=EAUyKy3IwmqM&format=png&color=000000"
-        />
-        <Editor
-          language="css"
-          displayName="style.css"
-          value={css}
-          onChange={setCss}
-          displayImage="https://img.icons8.com/?size=100&id=7gdY5qNXaKC0&format=png&color=000000"
-        />
-        <Editor
-          language="javascript"
-          displayName="script.js"
-          displayImage="https://img.icons8.com/?size=100&id=108784&format=png&color=000000"
-          value={js}
-          onChange={setJs}
-        />
-      </div>
-      <div className="pane flex-1">
-        <iframe
-          title="output"
-          sandbox="allow-scripts"
-          srcDoc={srcDoc}
-          className="w-full h-full rounded-md px-2 py-1"
-          frameBorder={0}
-        />
-      </div>
-    </div>
+    <main className="min-h-screen bg-zinc-900 text-zinc-100 flex flex-col">
+      {/* top bar */}
+      <header className="flex items-center gap-2 px-6 py-4">
+        <div className="h-6 w-6 bg-gradient-to-br from-orange-400 to-cyan-600 rounded-sm" />
+        <span className="font-semibold tracking-wide">React Code Playground</span>
+      </header>
+
+      {/* greeting & choices */}
+      <section className="flex-1 flex flex-col items-center justify-center gap-12">
+        <div className="text-center space-y-2">
+          <h1 className="text-5xl font-bold">Hello, <span className="text-orange-400">Engineer!</span></h1>
+          <p className="text-lg text-zinc-400">Click below to get started</p>
+        </div>
+
+        <div className="flex gap-8">
+          {/* <Link
+            href="/playground?type=vanilla"
+            className="w-56 h-40 bg-zinc-800 rounded-xl border border-zinc-700 hover:border-orange-500
+                       flex flex-col items-center justify-center gap-3 transition">
+            <img src="/htmlcssjs.jpeg" alt="" className="w-18 h-18" />
+            <span className="font-medium">Vanilla JavaScript</span>
+          </Link> */}
+
+          <Link
+            href="/playground?type=react"
+            className="w-56 h-40 bg-zinc-800 rounded-xl border border-zinc-700 hover:border-sky-500
+                       flex flex-col items-center justify-center gap-3 transition">
+            <img src="/react.png" alt="" className="w-12 h-12" />
+            <span className="font-medium">React.ts</span>
+          </Link>
+        </div>
+      </section>
+
+      <footer className="text-center py-4 text-xs text-zinc-500">
+        Built with Next &middot; Tailwind CSS &middot; CodeMirror 6
+      </footer>
+    </main>
   );
 }
