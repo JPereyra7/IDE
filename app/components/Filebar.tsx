@@ -46,7 +46,7 @@ export function FileSidebar({ root, setRoot, onSelect }: Props) {
       <div
         key={n.id}
         style={{ paddingLeft: depth * 14 + 22 }}
-        className="cursor-pointer hover:text-sky-400 select-none flex items-center gap-1"
+        className="cursor-pointer hover:text-gray-600 transition-all duration-200 select-none flex items-center gap-1"
         onClick={() => onSelect(n)}
       >
         <img src={iconSrc} className="w-4 h-4" alt="" /> {n.name}

@@ -1,4 +1,3 @@
-/* app/page.tsx ------------------------------------------------------------*/
 'use client';
 
 import Link from 'next/link';
@@ -9,7 +8,7 @@ export default function Home() {
       {/* top bar */}
       <header className="flex items-center gap-2 px-6 py-4">
         <div className="h-6 w-6 bg-gradient-to-br from-orange-400 to-cyan-600 rounded-sm" />
-        <span className="font-semibold tracking-wide">React Code Playground</span>
+        <span className="font-semibold tracking-wide">ReactPen Playground</span>
       </header>
 
       {/* greeting & choices */}

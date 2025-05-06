@@ -66,7 +66,10 @@ export default function Playground() {
 
   return (
     <div className="h-screen flex flex-col bg-zinc-900 text-zinc-100">
-      <header className="px-3 py-2 border-b border-zinc-800 text-sm">React IDE</header>
+        <div className='flex flex-row gap-1.5 mb-3.5 ml-2.5'>
+              <div className="h-6 w-6 bg-gradient-to-br from-orange-400 to-cyan-600 rounded-sm" />
+              <span className="font-semibold tracking-wide">ReactPen Playground</span>
+        </div>
 
       <div className="flex flex-1 overflow-hidden">
         <FileSidebar root={tree} setRoot={setTree} onSelect={setActive} />
