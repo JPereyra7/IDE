@@ -35,7 +35,7 @@ export function Editor({ language, displayName, value, onChange }: Props) {
         onChange={handle}
         extensions={[extensions[language]]}
         theme="dark"
-        className="flex-1 rounded-b-md"
+        className="flex-1 rounded-b-md overflow-scroll"
         basicSetup={{ lineNumbers: true }}
       />
     </div>
